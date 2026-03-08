@@ -6,7 +6,6 @@ Long-polling, no webhook, no reverse proxy needed.
 Saves every update as raw JSON + parsed provenance fields to SQLite.
 """
 
-import asyncio
 import json
 import logging
 import os
@@ -14,6 +13,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
+from log_utils import install_log_redactor
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters
 
@@ -24,6 +24,7 @@ logging.basicConfig(
     level=logging.INFO,
 )
 log = logging.getLogger("historian")
+
 
 DB_PATH = os.getenv("DB_PATH", "historian.db")
 
@@ -198,8 +199,9 @@ def make_handler(conn: sqlite3.Connection):
 # Entry point
 # ---------------------------------------------------------------------------
 
-async def main():
+def main():
     token = os.environ["TELEGRAM_BOT_TOKEN"]
+    install_log_redactor(token, replacement="<TOKEN>")
     conn = init_db(DB_PATH)
 
     app = (
@@ -211,11 +213,11 @@ async def main():
     app.add_handler(MessageHandler(filters.ALL, make_handler(conn)))
 
     log.info("Starting long-poll loop …")
-    await app.run_polling(
+    app.run_polling(
         allowed_updates=Update.ALL_TYPES,
         drop_pending_updates=True,   # ignore backlog on startup
     )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

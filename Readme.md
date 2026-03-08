@@ -8,6 +8,9 @@ cp sample.env .env
 
 uv sync  # recommended
 uv run bot.py
+# ...
+# 2026-03-08 23:07:37 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot<TOKEN>/getUpdates "HTTP/1.1 200 OK"
+# 2026-03-08 23:07:47 [INFO] httpx: HTTP Request: POST https://api.telegram.org/bot<TOKEN>/getUpdates "HTTP/1.1 200 OK"
 ```
 
 Then forward a deliberate variety of messages to your channel
@@ -42,7 +45,10 @@ Telegram will reject the polling requests.
 The fix is one API call to deregister the webhook before starting polling:
 
 ```bash
+. .env  # read TELEGRAM_BOT_TOKEN
 curl https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteWebhook
+
+# {"ok":true,"result":true,"description":"Webhook was deleted"}
 ```
 
 After that, `bot.py` can use the exact same token. When you eventually want the webhook back,
@@ -50,4 +56,13 @@ just re-register it with `setWebhook` and stop the polling process.
 
 `python-telegram-bot` library actually does this automatically — the `drop_pending_updates=True`
 in `run_polling()` handles the switchover cleanly on startup.
+
 But calling `deleteWebhook` manually first is cleaner and avoids a race condition.
+
+### Claude Code LSP
+```bash
+npm install -g pyright
+
+# in Claude Code
+/plugin install pyright@claude-code-lsps
+```

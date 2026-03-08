@@ -1,1 +1,5 @@
 .env
+historian.db
+historian.db-shm
+historian.db-wal
+__pycache__/
