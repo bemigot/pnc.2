@@ -1,3 +1,5 @@
+#!/usr/bin/env -S uv run --script
+
 """
 historian_capture/analyze.py
 
